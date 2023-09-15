@@ -54,7 +54,7 @@ export class RemoveGroupMemberUsecase {
   private async randomNewOwner(group: GroupModel): Promise<UserModel> {
     const randomList = (
       await this.groupMemberRepository.list(
-        new PaginationParams(1, 100, false, false),
+        new PaginationParams(1, 3, false, false),
         new SortParams(undefined, undefined),
         group,
         undefined,

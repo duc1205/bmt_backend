@@ -88,15 +88,11 @@ export class GroupMemberDatasource {
   }
 
   async removeAll(body: RemoveAllGroupMemberInterface): Promise<void> {
-    const { group, member } = body;
+    const { group } = body;
     const condition: FindOptionsWhere<GroupMemberEntity> = {};
 
     if (group) {
       condition.group_id = group.id;
-    }
-
-    if (member) {
-      condition.member_id = member?.id;
     }
 
     await this.groupMemberRepository.delete(condition);

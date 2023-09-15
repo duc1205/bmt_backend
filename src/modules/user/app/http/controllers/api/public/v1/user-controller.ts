@@ -1,11 +1,13 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
-import { CreateUserDto } from '../../../../../dtos/user-dto';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UserModel } from 'src/modules/user/domain/models/user-model';
-import { normalizeResponseData, throwError } from 'src/core/helpers/utils';
+import { Body, Controller, Post, Res } from '@nestjs/common';
+import { CreateUserDto } from '../../../../../dtos/user-dto';
 import { CreateUserUsecase } from 'src/modules/user/domain/usecases/create-user-usecase';
+import { normalizeResponseData, throwError } from 'src/core/helpers/utils';
+import { Public } from 'src/modules/auth/decorators/metadata';
+import { Response } from 'express';
+import { UserModel } from 'src/modules/user/domain/models/user-model';
 
+@Public()
 @ApiTags('Public \\ User')
 @Controller({ path: 'api/public/v1/user' })
 export class UserController {

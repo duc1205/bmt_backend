@@ -11,5 +11,4 @@ export type GetGroupMemberBody = Partial<Pick<GroupMemberInterface, 'id' | 'grou
 
 export type RemoveAllGroupMemberInterface = {
   group?: GroupModel;
-  member?: UserModel;
 };

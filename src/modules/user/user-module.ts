@@ -4,10 +4,11 @@ import { CheckUserPasswordUsecase } from './domain/usecases/check-user-password-
 import { CheckUserPhoneNumberExistsUsecase } from './domain/usecases/check-user-phone-number-exists-usecase';
 import { CreateUserUsecase } from './domain/usecases/create-user-usecase';
 import { DeleteUserUsecase } from './domain/usecases/delete-user-usecase';
+import { forwardRef, Module } from '@nestjs/common';
 import { GetUsersUsecase } from './domain/usecases/get-users-usecase';
 import { GetUserUsecase } from './domain/usecases/get-user-usecase';
+import { GroupModule } from '../group/group-module';
 import { MeController } from './app/http/controllers/api/user/v1/me-controller';
-import { Module } from '@nestjs/common';
 import { ResetUserPasswordUsecase } from './domain/usecases/reset-user-password-usecase';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UpdateUserUsecase } from './domain/usecases/update-user-usecase';
@@ -18,7 +19,7 @@ import { UserRepository } from './domain/repositories/user-repository';
 import { UserRepositoryImpl } from './data/repositories/user-repository-impl';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity])],
+  imports: [TypeOrmModule.forFeature([UserEntity]), forwardRef(() => GroupModule)],
   controllers: [MeController, PublicController, UserController],
   providers: [
     {

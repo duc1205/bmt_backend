@@ -13,7 +13,7 @@ export class ListGroupsUsecase {
   async call(
     paginationParams: PaginationParams,
     sortParams: SortParams,
-    user: UserModel,
+    user: UserModel | undefined,
     relations: string[] | undefined,
   ): Promise<PageList<GroupModel>> {
     return await this.groupRepository.list(paginationParams, sortParams, user, relations);

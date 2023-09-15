@@ -137,7 +137,7 @@ export class GroupController {
   /**
    * Get list of group
    */
-  @ApiResponse({ type: [UserModel] })
+  @ApiResponse({ type: [GroupModel] })
   @Get()
   async list(@Req() req: any, @Query() query: GetGroupListQueryDto, @Res() res: Response) {
     const authPayload: AuthPayloadModel = req.user;
