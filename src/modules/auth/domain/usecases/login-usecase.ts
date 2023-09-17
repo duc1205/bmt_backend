@@ -13,6 +13,7 @@ import { GetUserUsecase } from 'src/modules/user/domain/usecases/get-user-usecas
 import { CheckUserPasswordUsecase } from 'src/modules/user/domain/usecases/check-user-password-usecase';
 import { PhoneNumberModel } from 'src/modules/phone-number/domain/models/phone-number-model';
 import { LogicalException } from 'src/exceptions/logical-exception';
+import { AuthPayloadModel } from '../models/auth-payload-model';
 
 @Injectable()
 export class LoginUsecase {
@@ -27,7 +28,7 @@ export class LoginUsecase {
   async call(
     clientId: string,
     clientSecret: string,
-    phoneNumber: PhoneNumberModel,
+    username: string,
     password: string,
   ): Promise<AuthBearerTokenModel> {
     if (!this.checkAuthClient(clientId, clientSecret)) {
@@ -40,22 +41,10 @@ export class LoginUsecase {
     }
 
     const provider = this.getProvider(clientId);
-    if (!provider) {
-      throw new AuthException(ErrorCode.AUTH_CLIENT_NOT_FOUND, 'Client not found.', undefined, undefined);
-    }
 
-    const user = await this.getUserUsecase.call({ phoneNumber: phoneNumber });
-    if (!user) {
-      throw new LogicalException(ErrorCode.AUTH_USER_NOT_FOUND, 'User not found.', undefined);
-    }
-    if (!(await this.checkUserPasswordUsecase.call(user, password))) {
-      throw new LogicalException(ErrorCode.AUTH_USER_PASSWORD_INCORRECT, 'Password is incorrect.', undefined);
-    }
-
-    const authPayload = await this.createAuthPayloadUsecase.call(user.id, provider);
+    const authPayload = await this.getAuthPayload(provider, username, password);
 
     const jwt = await this.jwtService.signAsync({ auth_payload: authPayload });
-
     const authBearerTokenModel = new AuthBearerTokenModel(
       jwt,
       'Bearer',
@@ -80,5 +69,30 @@ export class LoginUsecase {
       .toString();
 
     return clientIdHashed == clientSecret;
+  }
+
+  private async getAuthPayload(
+    provider: AuthProvider | null,
+    username: string,
+    password: string,
+  ): Promise<AuthPayloadModel> {
+    switch (provider) {
+      case AuthProvider.User:
+        const phoneNumber = PhoneNumberModel.parsedPhoneNumber(username);
+
+        const user = await this.getUserUsecase.call({ phoneNumber });
+        if (!user) {
+          throw new LogicalException(ErrorCode.AUTH_USER_NOT_FOUND, 'User not found.', undefined);
+        }
+
+        if (!(await this.checkUserPasswordUsecase.call(user, password))) {
+          throw new LogicalException(ErrorCode.AUTH_USER_PASSWORD_INCORRECT, 'Password is incorrect.', undefined);
+        }
+
+        return await this.createAuthPayloadUsecase.call(user.id, provider);
+
+      default:
+        throw new AuthException(ErrorCode.AUTH_CLIENT_NOT_FOUND, 'Client not found.', undefined, undefined);
+    }
   }
 }

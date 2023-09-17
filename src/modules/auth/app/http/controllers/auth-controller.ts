@@ -22,7 +22,7 @@ export class AuthController {
     const authBearerTokenModel = await this.loginUsecase.call(
       body.client_id,
       body.client_secret,
-      body.phone_number,
+      body.username,
       body.password,
     );
     res.status(HttpStatus.OK).json(normalizeResponseData(authBearerTokenModel));

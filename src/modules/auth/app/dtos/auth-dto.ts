@@ -1,9 +1,6 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { AuthProvider } from '../../domain/providers/auth-provider';
-import { IsPhoneNumberWithCountryCode } from 'src/core/rules/is-phone-number-with-country-code';
-import { PhoneNumberModel } from 'src/modules/phone-number/domain/models/phone-number-model';
-import { Transform } from 'class-transformer';
 
 export class AuthDto {
   @ApiProperty()
@@ -15,12 +12,9 @@ export class AuthDto {
   client_secret!: string;
 
   @ApiProperty({ type: 'string' })
-  @IsPhoneNumberWithCountryCode()
-  @Transform((value: any) => {
-    return value.obj?.phone_number ? PhoneNumberModel.parsedPhoneNumber(value.obj.phone_number) : undefined;
-  })
+  @IsString()
   @IsNotEmpty()
-  phone_number!: PhoneNumberModel;
+  username!: string;
 
   @ApiProperty()
   @IsString()
@@ -28,7 +22,7 @@ export class AuthDto {
   password!: string;
 }
 
-export class LoginAuthDto extends PickType(AuthDto, ['client_id', 'client_secret', 'phone_number', 'password']) {}
+export class LoginAuthDto extends PickType(AuthDto, ['client_id', 'client_secret', 'username', 'password']) {}
 
 export class CreateAuthClientCommandParamsDto {
   @ApiProperty()
