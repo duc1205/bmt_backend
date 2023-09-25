@@ -2,10 +2,27 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { PageList } from '../models/page-list';
 import { DomainModel } from '../models/domain-model';
+import { SelectQueryBuilder } from 'typeorm';
 
 export function throwError(errorMessage = ''): never {
   throw new Error(errorMessage);
 }
+
+export const isExistsQuery = (query: string) => `EXISTS(${query}) AS "exists"`;
+
+// TODO: remove this once it is provided by TypeORM (in case that ever happens)
+declare module 'typeorm' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface SelectQueryBuilder<Entity> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    exists<T>(): Promise<boolean>;
+  }
+}
+
+SelectQueryBuilder.prototype.exists = async function (): Promise<boolean> {
+  const result = await this.select(isExistsQuery(this.getQuery())).where('').getRawOne();
+  return result?.exists ?? false;
+};
 
 export const parseBoolean = (val: string | boolean | number | undefined, strict = true): boolean | undefined => {
   if ((val === undefined || val === null) && !strict) {

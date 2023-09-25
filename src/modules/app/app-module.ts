@@ -14,6 +14,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { UserModule } from '../user/user-module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth-guard';
+import { EventModule } from '../event/event-module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { JwtAuthGuard } from '../auth/jwt/jwt-auth-guard';
     UserModule,
     AuthModule,
     GroupModule,
+    EventModule,
   ],
   controllers: [AppController],
   providers: [

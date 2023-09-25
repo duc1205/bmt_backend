@@ -8,6 +8,10 @@ export class GetUserUsecase {
   constructor(private readonly userRepository: UserRepository) {}
 
   async call(body: GetUserBody): Promise<UserModel | undefined> {
+    if (Object.keys(body).length == 0) {
+      return undefined;
+    }
+
     return await this.userRepository.get(body);
   }
 }

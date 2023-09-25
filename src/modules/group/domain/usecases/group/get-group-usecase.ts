@@ -7,6 +7,9 @@ import { GroupRepository } from '../../repositories/group-repository';
 export class GetGroupUsecase {
   constructor(private readonly groupRepository: GroupRepository) {}
   async call(body: GetGroupBody): Promise<GroupModel | undefined> {
-    return await this.groupRepository.get(body);
+    const { id } = body;
+    if (id) {
+      return await this.groupRepository.get(body);
+    }
   }
 }

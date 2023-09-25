@@ -6,10 +6,12 @@ import { AuthPayloadModel } from '../domain/models/auth-payload-model';
 import { AuthProvider } from '../domain/providers/auth-provider';
 import { LogicalException } from '../../../exceptions/logical-exception';
 import { ErrorCode } from '../../../exceptions/error-code';
+import { GetUserUsecase } from 'src/modules/user/domain/usecases/get-user-usecase';
+import { AuthException } from 'src/exceptions/auth-exception';
 
 @Injectable()
 export class JwtUserStrategy extends PassportStrategy(Strategy, 'jwt_user') {
-  constructor(configService: ConfigService) {
+  constructor(configService: ConfigService, private readonly getUserUsecase: GetUserUsecase) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromAuthHeaderAsBearerToken()]),
       ignoreExpiration: false,
@@ -27,6 +29,11 @@ export class JwtUserStrategy extends PassportStrategy(Strategy, 'jwt_user') {
         undefined,
       );
     }
+
+    if (!(await this.getUserUsecase.call({ id: authPayload.authenticatableId }))) {
+      throw new AuthException(ErrorCode.AUTH_USER_NOT_FOUND, 'Auth user not found.', undefined, undefined);
+    }
+
     return authPayload;
   }
 }

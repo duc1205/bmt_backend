@@ -53,6 +53,12 @@ import { UserModule } from '../user/user-module';
     RemoveAllGroupMemberUsecase,
     GetCountGroupMembersUsecase,
   ],
-  exports: [RemoveGroupMemberUsecase, ListGroupsUsecase],
+  exports: [
+    RemoveGroupMemberUsecase,
+    GetGroupMemberUsecase,
+    ListGroupsUsecase,
+    GetGroupUsecase,
+    CheckGroupMemberExistsUsecase,
+  ],
 })
 export class GroupModule {}
