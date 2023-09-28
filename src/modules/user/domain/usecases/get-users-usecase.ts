@@ -12,8 +12,9 @@ export class GetUsersUsecase {
   async call(
     paginationParams: PaginationParams,
     sortParams: SortParams,
+    ignoreUsers: UserModel[] | undefined,
     relations: string[] | undefined,
   ): Promise<PageList<UserModel>> {
-    return await this.userRepository.list(paginationParams, sortParams, relations);
+    return await this.userRepository.list(paginationParams, sortParams, ignoreUsers, relations);
   }
 }

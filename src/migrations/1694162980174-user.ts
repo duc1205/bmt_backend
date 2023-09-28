@@ -21,7 +21,7 @@ export class User1694162980174 implements MigrationInterface {
             type: 'varchar',
           },
           {
-            name: 'phone',
+            name: 'phone_number',
             type: 'varchar',
             isUnique: true,
           },

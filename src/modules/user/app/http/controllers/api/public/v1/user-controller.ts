@@ -17,7 +17,7 @@ export class UserController {
    *  Sign up
    */
   @ApiResponse({ type: UserModel })
-  @Post('/')
+  @Post('/signup')
   async getProfile(@Body() body: CreateUserDto, @Res() res: Response) {
     const user =
       (await this.createUserUsecase.call({

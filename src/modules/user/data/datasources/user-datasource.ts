@@ -1,6 +1,6 @@
 import UserEntity from './entities/user-entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
-import { GetUserBody, UpdateUserInterface } from '../../domain/interfaces/user-interface';
+import { FindOptionsWhere, In, Not, Repository } from 'typeorm';
+import { GetUserInput, UpdateUserInput } from '../../domain/inputs/user-inputs';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PageList } from '../../../../core/models/page-list';
@@ -20,7 +20,7 @@ export class UserDatasource {
     entity.password = user.password;
     entity.created_at = user.createdAt;
     entity.updated_at = user.updatedAt;
-    entity.phone = user.phoneNumber;
+    entity.phone_number = user.phoneNumber;
     entity.avatar_path = <string | undefined>user.avatarPath;
 
     await this.userRepository.insert(entity);
@@ -29,11 +29,16 @@ export class UserDatasource {
   async list(
     paginationParams: PaginationParams,
     sortParams: SortParams,
+    ignoreUsers: UserModel[] | undefined,
     relations: string[] | undefined,
   ): Promise<PageList<UserModel>> {
     const condition: FindOptionsWhere<UserEntity> = {};
     const orderBy: Record<any, any> = {};
     orderBy[sortParams.sort] = sortParams.dir;
+
+    if (ignoreUsers && ignoreUsers.length > 0) {
+      condition.id = Not(In(ignoreUsers.map((user) => user.id)));
+    }
 
     const query = this.userRepository.createQueryBuilder().setFindOptions({
       where: condition,
@@ -60,11 +65,11 @@ export class UserDatasource {
     );
   }
 
-  async get(body: GetUserBody): Promise<UserModel | undefined> {
-    const condition: FindOptionsWhere<UserEntity> = {};
-
-    condition.id = body.id;
-    condition.phone = body.phoneNumber?.number;
+  async get(body: GetUserInput): Promise<UserModel | undefined> {
+    const condition: FindOptionsWhere<UserEntity> = {
+      ...(body.id && { id: body.id }),
+      ...(body.phoneNumber && { phone_number: body.phoneNumber.number }),
+    };
 
     return (
       await this.userRepository.findOne({
@@ -73,10 +78,10 @@ export class UserDatasource {
     )?.toModel();
   }
 
-  async update(user: UserModel, body: UpdateUserInterface): Promise<void> {
+  async update(user: UserModel, body: UpdateUserInput): Promise<void> {
     await this.userRepository.update(user.id, {
       ...(body.name && { name: body.name }),
-      ...{ avatar_path: <string>body.avatarPath },
+      ...(body.avatarPath !== undefined && { avatar_path: <string>body.avatarPath }),
       updated_at: new Date(),
     });
   }
@@ -89,7 +94,7 @@ export class UserDatasource {
 
   async checkUserPhoneNumberExists(phoneNumber: PhoneNumberModel): Promise<boolean> {
     const condition: FindOptionsWhere<UserEntity> = {
-      phone: phoneNumber.number,
+      phone_number: phoneNumber.number,
     };
 
     return (await this.userRepository.createQueryBuilder().where(condition).getCount()) > 0;

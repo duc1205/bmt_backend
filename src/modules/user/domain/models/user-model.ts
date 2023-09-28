@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DomainModel } from 'src/core/models/domain-model';
 
 export class UserModel extends DomainModel {
@@ -14,7 +14,7 @@ export class UserModel extends DomainModel {
   @ApiPropertyOptional({ name: 'phone_number' })
   public readonly phoneNumber: string;
 
-  @ApiPropertyOptional({ name: 'avatar_path', type: 'string' })
+  @ApiHideProperty()
   public readonly avatarPath: string | undefined | null;
 
   @ApiPropertyOptional({ name: 'avatar_url', type: 'string' })

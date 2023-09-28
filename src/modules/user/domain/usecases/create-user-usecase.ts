@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { CheckUserPhoneNumberExistsUsecase } from './check-user-phone-number-exists-usecase';
-import { CreateUserInterface } from '../interfaces/user-interface';
+import { CreateUserInput } from '../inputs/user-inputs';
 import { ErrorCode } from 'src/exceptions/error-code';
 import { Injectable } from '@nestjs/common';
 import { LogicalException } from 'src/exceptions/logical-exception';
@@ -15,7 +15,7 @@ export class CreateUserUsecase {
     private readonly checkUserPhoneNumberExistsUsecase: CheckUserPhoneNumberExistsUsecase,
   ) {}
 
-  async call(body: CreateUserInterface): Promise<UserModel> {
+  async call(body: CreateUserInput): Promise<UserModel> {
     if (await this.checkUserPhoneNumberExistsUsecase.call(body.phoneNumber)) {
       throw new LogicalException(ErrorCode.USER_PHONE_NUMBER_EXIST, 'Phone number already exists.', undefined);
     }

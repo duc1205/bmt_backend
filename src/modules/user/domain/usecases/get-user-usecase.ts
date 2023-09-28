@@ -1,4 +1,4 @@
-import { GetUserBody } from '../interfaces/user-interface';
+import { GetUserInput } from '../inputs/user-inputs';
 import { Injectable } from '@nestjs/common';
 import { UserModel } from '../models/user-model';
 import { UserRepository } from '../repositories/user-repository';
@@ -7,11 +7,9 @@ import { UserRepository } from '../repositories/user-repository';
 export class GetUserUsecase {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async call(body: GetUserBody): Promise<UserModel | undefined> {
-    if (Object.keys(body).length == 0) {
-      return undefined;
+  async call(body: GetUserInput): Promise<UserModel | undefined> {
+    if (body.id || body.phoneNumber) {
+      return await this.userRepository.get(body);
     }
-
-    return await this.userRepository.get(body);
   }
 }

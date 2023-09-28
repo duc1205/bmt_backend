@@ -13,7 +13,7 @@ export default class UserEntity {
   password!: string;
 
   @Column()
-  phone!: string;
+  phone_number!: string;
 
   @Column()
   avatar_path?: string;
@@ -29,7 +29,7 @@ export default class UserEntity {
       this.id,
       this.password,
       this.name,
-      this.phone,
+      this.phone_number,
       this.avatar_path,
       this.created_at,
       this.updated_at,

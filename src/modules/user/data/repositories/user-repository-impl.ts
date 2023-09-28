@@ -5,7 +5,7 @@ import { UserDatasource } from '../datasources/user-datasource';
 import { PaginationParams } from 'src/core/models/pagination-params';
 import { SortParams } from 'src/core/models/sort-params';
 import { PageList } from 'src/core/models/page-list';
-import { GetUserBody, UpdateUserInterface } from '../../domain/interfaces/user-interface';
+import { GetUserInput, UpdateUserInput } from '../../domain/inputs/user-inputs';
 import { PhoneNumberModel } from 'src/modules/phone-number/domain/models/phone-number-model';
 
 @Injectable()
@@ -17,12 +17,13 @@ export class UserRepositoryImpl extends UserRepository {
   async list(
     paginationParams: PaginationParams,
     sortParams: SortParams,
+    ignoreUsers: UserModel[] | undefined,
     relations: string[] | undefined,
   ): Promise<PageList<UserModel>> {
-    return await this.userDatasource.list(paginationParams, sortParams, relations);
+    return await this.userDatasource.list(paginationParams, sortParams, ignoreUsers, relations);
   }
 
-  async get(body: GetUserBody): Promise<UserModel | undefined> {
+  async get(body: GetUserInput): Promise<UserModel | undefined> {
     return await this.userDatasource.get(body);
   }
 
@@ -30,7 +31,7 @@ export class UserRepositoryImpl extends UserRepository {
     await this.userDatasource.create(user);
   }
 
-  async update(user: UserModel, body: UpdateUserInterface): Promise<void> {
+  async update(user: UserModel, body: UpdateUserInput): Promise<void> {
     await this.userDatasource.update(user, body);
   }
 

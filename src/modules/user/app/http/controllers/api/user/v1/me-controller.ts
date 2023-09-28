@@ -1,9 +1,8 @@
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthPayloadModel } from 'src/modules/auth/domain/models/auth-payload-model';
-import { Body, Controller, Delete, Get, HttpStatus, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { ChangePasswordUserDto, UpdateUserByMeDto } from '../../../../../dtos/user-dto';
 import { ChangeUserPasswordUsecase } from 'src/modules/user/domain/usecases/change-user-password-usecase';
-import { DeleteUserUsecase } from '../../../../../../domain/usecases/delete-user-usecase';
 import { GetUserUsecase } from '../../../../../../domain/usecases/get-user-usecase';
 import { normalizeResponseData, throwError } from 'src/core/helpers/utils';
 import { Response } from 'express';
@@ -20,7 +19,6 @@ export class MeController {
     private readonly getUserUsecase: GetUserUsecase,
     private readonly changeUserPasswordUsecase: ChangeUserPasswordUsecase,
     private readonly updateUserUsecase: UpdateUserUsecase,
-    private readonly deleteUserUsecase: DeleteUserUsecase,
   ) {}
 
   /**
@@ -60,20 +58,6 @@ export class MeController {
   async logout(@Req() req: any, @Res() res: Response) {
     const authPayload: AuthPayloadModel = req.user;
     (await this.getUserUsecase.call({ id: authPayload.authenticatableId })) ?? throwError();
-
-    res.status(HttpStatus.OK).json(normalizeResponseData(true));
-  }
-
-  /**
-   *  Delete user account
-   */
-  @ApiResponse({ status: HttpStatus.OK, schema: { type: 'boolean' } })
-  @Delete('/')
-  async delete(@Req() req: any, @Res() res: Response) {
-    const authPayload: AuthPayloadModel = req.user;
-    const user = (await this.getUserUsecase.call({ id: authPayload.authenticatableId })) ?? throwError();
-
-    await this.deleteUserUsecase.call(user);
 
     res.status(HttpStatus.OK).json(normalizeResponseData(true));
   }

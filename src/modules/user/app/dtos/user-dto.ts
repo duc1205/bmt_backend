@@ -41,18 +41,6 @@ export class ChangePasswordUserDto {
   new_password!: string;
 }
 
-export class ResetPasswordUserDto {
-  @ApiProperty()
-  @IsString()
-  new_password!: string;
-}
-
-export class UserParamsDto {
-  @ApiProperty()
-  @IsString()
-  id!: string;
-}
-
 export class UpdateUserByMeDto extends PartialType(PickType(UserDto, ['avatar_path', 'name'] as const)) {}
 
-export class GetUserListQueryDto extends PartialType(IntersectionType(PaginationParamsDto, SortParamsDto)) {}
+export class GetUsersQueryDto extends PartialType(IntersectionType(PaginationParamsDto, SortParamsDto)) {}

@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { ChangePasswordUserInterface } from '../interfaces/user-interface';
+import { ChangePasswordUserInput } from '../inputs/user-inputs';
 import { CheckUserPasswordUsecase } from './check-user-password-usecase';
 import { ErrorCode } from '../../../../exceptions/error-code';
 import { Injectable } from '@nestjs/common';
@@ -14,7 +14,7 @@ export class ChangeUserPasswordUsecase {
     private readonly checkUserPasswordUsecase: CheckUserPasswordUsecase,
   ) {}
 
-  async call(user: UserModel, body: ChangePasswordUserInterface): Promise<void> {
+  async call(user: UserModel, body: ChangePasswordUserInput): Promise<void> {
     if (!(await this.checkUserPasswordUsecase.call(user, body.oldPassword))) {
       throw new LogicalException(ErrorCode.USER_OLD_PASSWORD_NOT_CORRECT, 'Your password is not correct.', undefined);
     }
