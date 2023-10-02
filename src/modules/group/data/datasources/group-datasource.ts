@@ -7,7 +7,7 @@ import { PaginationParams } from 'src/core/models/pagination-params';
 import { SortParams } from 'src/core/models/sort-params';
 import { UserModel } from 'src/modules/user/domain/models/user-model';
 import { PageList } from 'src/core/models/page-list';
-import { GetGroupBody, UpdateGroupInterface } from '../../domain/interfaces/group-interface';
+import { GetGroupInput, UpdateGroupInput } from '../../domain/inputs/group-input';
 
 @Injectable()
 export class GroupDatasource {
@@ -72,7 +72,7 @@ export class GroupDatasource {
     );
   }
 
-  async get(body: GetGroupBody): Promise<GroupModel | undefined> {
+  async get(body: GetGroupInput): Promise<GroupModel | undefined> {
     const condition: FindOptionsWhere<GroupEntity> = {};
 
     condition.id = body.id;
@@ -84,7 +84,7 @@ export class GroupDatasource {
     )?.toModel();
   }
 
-  async update(group: GroupModel, body: UpdateGroupInterface): Promise<void> {
+  async update(group: GroupModel, body: UpdateGroupInput): Promise<void> {
     await this.groupRepository.update(group.id, {
       ...(body.name && { name: body.name }),
       ...{ avatar_path: <string>body.avatarPath },

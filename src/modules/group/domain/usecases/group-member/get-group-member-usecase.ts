@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GetGroupMemberBody } from '../../interfaces/group-member-interface';
+import { GetGroupMemberInput } from '../../inputs/group-member-input';
 import { GroupMemberRepository } from '../../repositories/group-member-repository';
 import { GroupMemberModel } from '../../models/group-member-model';
 
@@ -7,7 +7,7 @@ import { GroupMemberModel } from '../../models/group-member-model';
 export class GetGroupMemberUsecase {
   constructor(private readonly groupMemberRepository: GroupMemberRepository) {}
 
-  async call(body: GetGroupMemberBody): Promise<GroupMemberModel | undefined> {
+  async call(body: GetGroupMemberInput): Promise<GroupMemberModel | undefined> {
     const { id, group, member } = body;
 
     if (id) {

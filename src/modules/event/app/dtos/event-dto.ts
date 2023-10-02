@@ -1,4 +1,4 @@
-import { IsDateString, IsEnum, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsDate, IsEnum, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, ValidateIf } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, IntersectionType, PartialType, PickType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { PaginationParamsDto } from 'src/core/dtos/pagination-params-dto';
@@ -22,19 +22,22 @@ export class EventDto {
   max_count!: number;
 
   @ApiProperty()
-  @IsDateString()
+  @IsDate()
+  @Transform((value) => new Date(value.obj.start_time))
   start_time!: Date;
 
   @ApiProperty()
-  @IsDateString()
+  @IsDate()
+  @Transform((value) => new Date(value.obj.finish_time))
   finish_time!: Date;
 
   @ApiProperty()
   @IsEnum(EventScope)
   scope!: EventScope;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
+  @IsNotEmpty()
+  @ValidateIf((obj) => obj.scope == EventScope.Group)
   @IsString()
   group_id: string | undefined;
 }
@@ -66,4 +69,10 @@ export class EventParamsDto {
   @IsNotEmpty()
   @Transform((value: any) => value.obj.id.trimStart().trimEnd())
   id!: string;
+}
+
+export class GetEventMemberListQueryDto extends PartialType(IntersectionType(PaginationParamsDto, SortParamsDto)) {
+  @ApiProperty()
+  @IsString()
+  event_id!: string;
 }

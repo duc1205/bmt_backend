@@ -4,7 +4,7 @@ import { PageList } from 'src/core/models/page-list';
 import { PaginationParams } from 'src/core/models/pagination-params';
 import { SortParams } from 'src/core/models/sort-params';
 import { UserModel } from 'src/modules/user/domain/models/user-model';
-import { GetGroupBody, UpdateGroupInterface } from '../../domain/interfaces/group-interface';
+import { GetGroupInput, UpdateGroupInput } from '../../domain/inputs/group-input';
 import { GroupModel } from '../../domain/models/group-model';
 import { GroupDatasource } from '../datasources/group-datasource';
 
@@ -27,11 +27,11 @@ export class GroupRepositoryImpl extends GroupRepository {
     return await this.groupDatasource.list(paginationParams, sortParams, user, relations);
   }
 
-  async get(body: GetGroupBody): Promise<GroupModel | undefined> {
+  async get(body: GetGroupInput): Promise<GroupModel | undefined> {
     return await this.groupDatasource.get(body);
   }
 
-  async update(group: GroupModel, body: UpdateGroupInterface): Promise<void> {
+  async update(group: GroupModel, body: UpdateGroupInput): Promise<void> {
     return await this.groupDatasource.update(group, body);
   }
 

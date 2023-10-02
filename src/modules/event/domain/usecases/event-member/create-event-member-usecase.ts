@@ -3,11 +3,13 @@ import { ErrorCode } from 'src/exceptions/error-code';
 import { EventMemberModel } from '../../model/event-member-model';
 import { EventMemberRepository } from '../../repositories/event-member-repository';
 import { EventModel } from '../../model/event-model';
+import { EventStatus } from 'src/modules/event/enum/event-status-enum';
+import { Injectable } from '@nestjs/common';
 import { LogicalException } from 'src/exceptions/logical-exception';
 import { UpdateEventUsecase } from '../event/update-event-usecase';
 import { UserModel } from 'src/modules/user/domain/models/user-model';
 import { v4 as uuidV4 } from 'uuid';
-import { Injectable } from '@nestjs/common';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class CreateEventMemberUsecase {
@@ -17,15 +19,21 @@ export class CreateEventMemberUsecase {
     private readonly updateEventUsecase: UpdateEventUsecase,
   ) {}
 
+  @Transactional()
   async call(event: EventModel, member: UserModel): Promise<EventMemberModel> {
-    if (event.startTime.getTime() > new Date().getTime()) {
+    if (event.getStatus() == EventStatus.isHappening || event.getStatus() == EventStatus.isFinished) {
       throw new LogicalException(
         ErrorCode.EVENT_MEMBER_CAN_NOT_JOIN_EVENT,
         'Can not join happening or finished event.',
         undefined,
       );
     }
-    if (await this.checkMemberCanJoinEventUsecase.call(event, member)) {
+
+    if (await this.eventMemberRepository.get(event, member, undefined)) {
+      throw new LogicalException(ErrorCode.EVENT_MEMBER_EXISTED_ALREADY, 'Member joined event.', undefined);
+    }
+
+    if (!(await this.checkMemberCanJoinEventUsecase.call(event, member))) {
       throw new LogicalException(ErrorCode.EVENT_MEMBER_CAN_NOT_JOIN_EVENT, 'Member can not join event', undefined);
     }
 

@@ -4,7 +4,7 @@ import { PageList } from 'src/core/models/page-list';
 import { PaginationParams } from 'src/core/models/pagination-params';
 import { SortParams } from 'src/core/models/sort-params';
 import { UserModel } from 'src/modules/user/domain/models/user-model';
-import { GetGroupMemberBody, RemoveAllGroupMemberInterface } from '../../domain/interfaces/group-member-interface';
+import { GetGroupMemberInput, DeleteAllGroupMemberInput } from '../../domain/inputs/group-member-input';
 import { GroupMemberModel } from '../../domain/models/group-member-model';
 import { GroupModel } from '../../domain/models/group-model';
 import { GroupMemberDatasource } from '../datasources/group-member-datasource';
@@ -24,7 +24,7 @@ export class GroupMemberRepositoryImpl extends GroupMemberRepository {
     return await this.groupMemberDatasource.list(paginationParams, sortParams, group, relations);
   }
 
-  async get(body: GetGroupMemberBody): Promise<GroupMemberModel | undefined> {
+  async get(body: GetGroupMemberInput): Promise<GroupMemberModel | undefined> {
     return await this.groupMemberDatasource.get(body);
   }
 
@@ -36,15 +36,11 @@ export class GroupMemberRepositoryImpl extends GroupMemberRepository {
     await this.groupMemberDatasource.create(groupMember);
   }
 
-  async remove(group: GroupModel, member: UserModel): Promise<void> {
+  async delete(group: GroupModel, member: UserModel): Promise<void> {
     await this.groupMemberDatasource.remove(group, member);
   }
 
-  async removeAll(body: RemoveAllGroupMemberInterface): Promise<void> {
+  async deleteAll(body: DeleteAllGroupMemberInput): Promise<void> {
     await this.groupMemberDatasource.removeAll(body);
-  }
-
-  async count(group: GroupModel): Promise<number> {
-    return await this.groupMemberDatasource.count(group);
   }
 }

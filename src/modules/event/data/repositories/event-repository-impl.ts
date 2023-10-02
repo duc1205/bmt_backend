@@ -5,7 +5,7 @@ import { GroupModel } from 'src/modules/group/domain/models/group-model';
 import { UserModel } from 'src/modules/user/domain/models/user-model';
 import { EventModel } from '../../domain/model/event-model';
 import { EventRepository } from '../../domain/repositories/event-repository';
-import { CheckEventAvailableCreate, GetEvent, UpdateEvent } from '../../domain/types/event-body-type';
+import { CheckEventAvailableCreateInput, UpdateEventInput } from '../../domain/inputs/event-input';
 import { EventStatus } from '../../enum/event-status-enum';
 import { EventDatasource } from '../datasources/event-datasource';
 import { EventScope } from '../../enum/event-scope-enum';
@@ -21,7 +21,7 @@ export class EventRepositoryImpl extends EventRepository {
     await this.eventDatasource.create(event);
   }
 
-  async update(event: EventModel, body: UpdateEvent): Promise<void> {
+  async update(event: EventModel, body: UpdateEventInput): Promise<void> {
     await this.eventDatasource.update(event, body);
   }
 
@@ -37,11 +37,23 @@ export class EventRepositoryImpl extends EventRepository {
     return await this.eventDatasource.list(paginationParams, sortParams, user, group, status, scope, relations);
   }
 
-  async checkAvailableTime(group: GroupModel, body: CheckEventAvailableCreate): Promise<boolean> {
-    return await this.eventDatasource.checkAvailableTime(group, body);
+  async checkAvailableTime(
+    group: GroupModel | undefined,
+    organizer: UserModel,
+    body: CheckEventAvailableCreateInput,
+  ): Promise<boolean> {
+    return await this.eventDatasource.checkAvailableTime(group, organizer, body);
   }
 
-  async get(body: GetEvent, relations: string[] | undefined): Promise<EventModel | undefined> {
-    return await this.eventDatasource.get(body, relations);
+  async get(id: string, relations: string[] | undefined): Promise<EventModel | undefined> {
+    return await this.eventDatasource.get(id, relations);
+  }
+
+  async deleteAllByGroup(group: GroupModel): Promise<void> {
+    return await this.eventDatasource.deleteAllByGroup(group);
+  }
+
+  async delete(event: EventModel): Promise<void> {
+    return await this.eventDatasource.delete(event);
   }
 }

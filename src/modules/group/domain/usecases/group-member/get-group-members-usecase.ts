@@ -7,7 +7,7 @@ import { PaginationParams } from 'src/core/models/pagination-params';
 import { SortParams } from 'src/core/models/sort-params';
 
 @Injectable()
-export class ListGroupMembersUsecase {
+export class GetGroupMembersUsecase {
   constructor(private readonly groupMemberRepository: GroupMemberRepository) {}
 
   async call(

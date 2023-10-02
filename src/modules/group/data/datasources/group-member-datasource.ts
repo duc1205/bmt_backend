@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PageList } from 'src/core/models/page-list';
 import { PaginationParams } from 'src/core/models/pagination-params';
 import { SortParams } from 'src/core/models/sort-params';
-import { GetGroupMemberBody, RemoveAllGroupMemberInterface } from '../../domain/interfaces/group-member-interface';
+import { GetGroupMemberInput, DeleteAllGroupMemberInput } from '../../domain/inputs/group-member-input';
 import { UserModel } from 'src/modules/user/domain/models/user-model';
 
 @Injectable()
@@ -65,7 +65,7 @@ export class GroupMemberDatasource {
     );
   }
 
-  async get(body: GetGroupMemberBody): Promise<GroupMemberModel | undefined> {
+  async get(body: GetGroupMemberInput): Promise<GroupMemberModel | undefined> {
     const condition: FindOptionsWhere<GroupMemberEntity> = {};
     const { id, group, member } = body;
 
@@ -87,7 +87,7 @@ export class GroupMemberDatasource {
     await this.groupMemberRepository.delete({ group_id: group.id, member_id: member.id });
   }
 
-  async removeAll(body: RemoveAllGroupMemberInterface): Promise<void> {
+  async removeAll(body: DeleteAllGroupMemberInput): Promise<void> {
     const { group } = body;
     const condition: FindOptionsWhere<GroupMemberEntity> = {};
 
@@ -100,9 +100,5 @@ export class GroupMemberDatasource {
 
   async checkExist(group: GroupModel, member: UserModel): Promise<boolean> {
     return (await this.groupMemberRepository.count({ where: { group_id: group.id, member_id: member.id } })) > 0;
-  }
-
-  async count(group: GroupModel): Promise<number> {
-    return await this.groupMemberRepository.count({ where: { group_id: group.id } });
   }
 }

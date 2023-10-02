@@ -26,6 +26,6 @@ export class GroupParamsDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @Transform((value: any) => value.obj.name.trimStart().trimEnd())
+  @Transform((value: any) => value.obj.id.trimStart().trimEnd())
   id!: string;
 }

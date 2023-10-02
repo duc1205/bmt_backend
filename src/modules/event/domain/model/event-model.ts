@@ -1,7 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DomainModel } from 'src/core/models/domain-model';
 import { EventScope } from '../../enum/event-scope-enum';
 import { EventStatus } from '../../enum/event-status-enum';
+import { GroupModel } from 'src/modules/group/domain/models/group-model';
+import { UserModel } from 'src/modules/user/domain/models/user-model';
 
 export class EventModel extends DomainModel {
   @ApiProperty()
@@ -12,6 +14,12 @@ export class EventModel extends DomainModel {
 
   @ApiProperty()
   public readonly description: string;
+
+  @ApiPropertyOptional()
+  public readonly groupId: string | undefined;
+
+  @ApiProperty()
+  public readonly organizerId: string;
 
   @ApiProperty({ name: 'current_count' })
   public readonly currentCount: number;
@@ -34,10 +42,18 @@ export class EventModel extends DomainModel {
   @ApiProperty({ name: 'updated_at' })
   public readonly updatedAt: Date;
 
+  @ApiPropertyOptional()
+  public readonly organizer: UserModel | undefined;
+
+  @ApiPropertyOptional()
+  public readonly group: GroupModel | undefined;
+
   constructor(
     id: string,
     title: string,
     description: string,
+    groupId: string | undefined,
+    organizerId: string,
     currentCount: number,
     maxCount: number,
     startTime: Date,
@@ -45,11 +61,15 @@ export class EventModel extends DomainModel {
     scope: EventScope,
     createdAt: Date,
     updatedAt: Date,
+    group: GroupModel | undefined,
+    organizer: UserModel | undefined,
   ) {
     super();
     this.id = id;
     this.title = title;
     this.description = description;
+    this.groupId = groupId;
+    this.organizerId = organizerId;
     this.currentCount = currentCount;
     this.maxCount = maxCount;
     this.startTime = startTime;
@@ -57,6 +77,8 @@ export class EventModel extends DomainModel {
     this.scope = scope;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.group = group;
+    this.organizer = organizer;
   }
 
   toJson(): Record<string, any> {
@@ -64,6 +86,8 @@ export class EventModel extends DomainModel {
       id: this.id,
       title: this.title,
       description: this.description,
+      group_id: this.groupId,
+      organizer_id: this.organizerId,
       current_count: this.currentCount,
       max_count: this.maxCount,
       start_time: this.startTime,
@@ -71,6 +95,8 @@ export class EventModel extends DomainModel {
       scope: this.scope,
       created_at: this.createdAt,
       updated_at: this.updatedAt,
+      organizer: this.organizer?.toJson(),
+      group: this.group?.toJson(),
     };
   }
 

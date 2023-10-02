@@ -1,6 +1,6 @@
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthPayloadModel } from 'src/modules/auth/domain/models/auth-payload-model';
-import { Body, Controller, Get, Param, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { normalizeResponseData } from 'src/core/helpers/utils';
 import { Response } from 'express';
 import { UserAuthGuard } from 'src/modules/auth/guards/user-auth-guard';
@@ -16,15 +16,19 @@ import { EventModel } from 'src/modules/event/domain/model/event-model';
 import { CreateEventUsecase } from 'src/modules/event/domain/usecases/event/create-event-usecase';
 import { EventScope } from 'src/modules/event/enum/event-scope-enum';
 import { UpdateEventUsecase } from 'src/modules/event/domain/usecases/event/update-event-usecase';
-import { GetListEventUsecase } from 'src/modules/event/domain/usecases/event/get-list-event-usecase';
+import { GetEventsUsecase } from 'src/modules/event/domain/usecases/event/get-events-usecase';
 import { CheckMemberCanJoinEventUsecase } from 'src/modules/event/domain/usecases/event-member/check-member-can-join-event-usecase';
 import { CreateEventMemberUsecase } from 'src/modules/event/domain/usecases/event-member/create-event-member-usecase';
 import {
   CreateEventDto,
   EventParamsDto,
   GetEventListQueryDto,
+  GetEventMemberListQueryDto,
   UpdateEventDto,
 } from 'src/modules/event/app/dtos/event-dto';
+import { DeleteEventMemberUsecase } from 'src/modules/event/domain/usecases/event-member/delete-event-member-usecase';
+import { GetEventMembersUsecase } from 'src/modules/event/domain/usecases/event-member/get-event-members-usecase';
+import { DeleteEventUsecase } from 'src/modules/event/domain/usecases/event/delete-event-usecase';
 
 @ApiTags('User \\ Event')
 @ApiBearerAuth()
@@ -36,11 +40,14 @@ export class EventController {
     private readonly getEventUsecase: GetEventUsecase,
     private readonly getUserUsecase: GetUserUsecase,
     private readonly checkGroupMemberExistsUsecase: CheckGroupMemberExistsUsecase,
-    private readonly getListEventUsecase: GetListEventUsecase,
+    private readonly getEventsUsecase: GetEventsUsecase,
     private readonly createEventUsecase: CreateEventUsecase,
     private readonly updateEventUsecase: UpdateEventUsecase,
     private readonly checkMemberCanJoinEventUsecase: CheckMemberCanJoinEventUsecase,
     private readonly createEventMemberUsecase: CreateEventMemberUsecase,
+    private readonly deleteEventMemberUsecase: DeleteEventMemberUsecase,
+    private readonly getEventMembersUsecase: GetEventMembersUsecase,
+    private readonly deleteEventUsecase: DeleteEventUsecase,
   ) {}
 
   /**
@@ -55,7 +62,7 @@ export class EventController {
       throw new LogicalException(ErrorCode.USER_NOT_FOUND, 'User not found', undefined);
     }
 
-    const event = await this.getEventUsecase.call({ id: params.id }, user, undefined);
+    const event = await this.getEventUsecase.call({ id: params.id }, user, ['group', 'organizer']);
 
     res.json(normalizeResponseData(event, true));
   }
@@ -88,7 +95,7 @@ export class EventController {
       }
     }
 
-    const event = await this.createEventUsecase.call(group, {
+    const event = await this.createEventUsecase.call(group, user, {
       title: body.title,
       description: body.description,
       scope: body.scope,
@@ -117,7 +124,7 @@ export class EventController {
       throw new LogicalException(ErrorCode.USER_NOT_FOUND, 'User not found', undefined);
     }
 
-    const event = await this.getEventUsecase.call({ id: params.id }, user, undefined);
+    const event = await this.getEventUsecase.call({ id: params.id }, user, ['group']);
     if (!event) {
       throw new LogicalException(ErrorCode.EVENT_NOT_FOUND, 'Event not found.', undefined);
     }
@@ -147,14 +154,14 @@ export class EventController {
       }
     }
 
-    const pageList = await this.getListEventUsecase.call(
+    const pageList = await this.getEventsUsecase.call(
       new PaginationParams(query.page, query.limit, query.need_total_count, query.only_count),
       new SortParams(query.sort, query.dir),
       user,
       group,
       query.status,
       query.scope,
-      undefined,
+      ['group', 'organizer'],
     );
 
     if (pageList.totalCount !== undefined) {
@@ -174,7 +181,7 @@ export class EventController {
       throw new LogicalException(ErrorCode.USER_NOT_FOUND, 'User not found', undefined);
     }
 
-    const event = await this.getEventUsecase.call({ id: params.id }, user, undefined);
+    const event = await this.getEventUsecase.call({ id: params.id }, user, ['group']);
     if (!event) {
       throw new LogicalException(ErrorCode.EVENT_NOT_FOUND, 'Event not found.', undefined);
     }
@@ -193,11 +200,79 @@ export class EventController {
       throw new LogicalException(ErrorCode.USER_NOT_FOUND, 'User not found', undefined);
     }
 
-    const event = await this.getEventUsecase.call({ id: params.id }, user, undefined);
+    const event = await this.getEventUsecase.call({ id: params.id }, user, ['group']);
     if (!event) {
       throw new LogicalException(ErrorCode.EVENT_NOT_FOUND, 'Event not found.', undefined);
     }
 
     res.json(normalizeResponseData(await this.createEventMemberUsecase.call(event, user)));
+  }
+
+  /**
+   * Leave event
+   */
+  @Delete('/id/:id/leave')
+  async leaveEvent(@Req() req: any, @Param() params: EventParamsDto, @Res() res: Response) {
+    const authPayload: AuthPayloadModel = req.user;
+    const user = await this.getUserUsecase.call({ id: authPayload.authenticatableId });
+    if (!user) {
+      throw new LogicalException(ErrorCode.USER_NOT_FOUND, 'User not found', undefined);
+    }
+
+    const event = await this.getEventUsecase.call({ id: params.id }, user, ['group', 'organizer']);
+    if (!event) {
+      throw new LogicalException(ErrorCode.EVENT_NOT_FOUND, 'Event not found.', undefined);
+    }
+
+    res.json(normalizeResponseData(await this.deleteEventMemberUsecase.call(event, user)));
+  }
+
+  /**
+   * Get list of event member
+   */
+  @Get('/member')
+  async listEventMember(@Req() req: any, @Query() query: GetEventMemberListQueryDto, @Res() res: Response) {
+    const authPayload: AuthPayloadModel = req.user;
+    const user = await this.getUserUsecase.call({ id: authPayload.authenticatableId });
+    if (!user) {
+      throw new LogicalException(ErrorCode.USER_NOT_FOUND, 'User not found', undefined);
+    }
+
+    const event = await this.getEventUsecase.call({ id: query.event_id }, user, ['group', 'organizer']);
+    if (!event) {
+      throw new LogicalException(ErrorCode.EVENT_NOT_FOUND, 'Event not belong to you.', undefined);
+    }
+
+    const pageList = await this.getEventMembersUsecase.call(
+      new PaginationParams(query.page, query.limit, query.need_total_count, query.only_count),
+      new SortParams(query.sort, query.dir),
+      event,
+      ['member', 'event', 'event.organizer'],
+    );
+
+    if (pageList.totalCount !== undefined) {
+      res.setHeader('X-Total-Count', pageList.totalCount);
+    }
+    res.json(normalizeResponseData(pageList));
+  }
+
+  /**
+   * Delete event
+   */
+  @Delete('/id/:id/delete')
+  async deleteEvent(@Req() req: any, @Param() params: EventParamsDto, @Res() res: Response) {
+    const authPayload: AuthPayloadModel = req.user;
+    const user = await this.getUserUsecase.call({ id: authPayload.authenticatableId });
+    if (!user) {
+      throw new LogicalException(ErrorCode.USER_NOT_FOUND, 'User not found', undefined);
+    }
+
+    const event = await this.getEventUsecase.call({ id: params.id }, user, ['group', 'organizer']);
+    if (!event) {
+      throw new LogicalException(ErrorCode.EVENT_NOT_FOUND, 'Event not found.', undefined);
+    }
+
+    await this.deleteEventUsecase.call(event, user);
+    res.json(normalizeResponseData(true));
   }
 }

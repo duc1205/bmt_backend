@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DomainModel } from 'src/core/models/domain-model';
 import { UserModel } from 'src/modules/user/domain/models/user-model';
 
@@ -12,7 +12,7 @@ export class GroupModel extends DomainModel {
   @ApiProperty()
   public readonly ownerId: string;
 
-  @ApiPropertyOptional({ name: 'avatar_path', type: 'string' })
+  @ApiHideProperty()
   public readonly avatarPath: string | undefined | null;
 
   @ApiPropertyOptional({ name: 'avatar_url', type: 'string' })

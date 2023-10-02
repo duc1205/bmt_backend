@@ -1,14 +1,14 @@
 import { UserModel } from 'src/modules/user/domain/models/user-model';
 import { GroupModel } from '../models/group-model';
 
-export type GroupMemberInterface = {
+export type GroupMemberInput = {
   id: string;
   group?: GroupModel;
   member?: UserModel;
 };
 
-export type GetGroupMemberBody = Partial<Pick<GroupMemberInterface, 'id' | 'group' | 'member'>>;
+export type GetGroupMemberInput = Partial<Pick<GroupMemberInput, 'id' | 'group' | 'member'>>;
 
-export type RemoveAllGroupMemberInterface = {
+export type DeleteAllGroupMemberInput = {
   group?: GroupModel;
 };

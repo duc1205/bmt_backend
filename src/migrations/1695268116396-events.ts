@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 
 export class Events1695268116396 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -28,6 +28,15 @@ export class Events1695268116396 implements MigrationInterface {
             type: 'int',
           },
           {
+            name: 'group_id',
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
+            name: 'organizer_id',
+            type: 'varchar',
+          },
+          {
             name: 'start_time',
             type: 'timestamp',
           },
@@ -50,6 +59,24 @@ export class Events1695268116396 implements MigrationInterface {
         ],
       }),
       true,
+    );
+
+    await queryRunner.createForeignKey(
+      'events',
+      new TableForeignKey({
+        columnNames: ['organizer_id'],
+        referencedTableName: 'users',
+        referencedColumnNames: ['id'],
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'events',
+      new TableForeignKey({
+        columnNames: ['group_id'],
+        referencedTableName: 'groups',
+        referencedColumnNames: ['id'],
+      }),
     );
   }
 
