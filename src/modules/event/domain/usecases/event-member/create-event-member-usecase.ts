@@ -21,7 +21,7 @@ export class CreateEventMemberUsecase {
 
   @Transactional()
   async call(event: EventModel, member: UserModel): Promise<EventMemberModel> {
-    if (event.getStatus() == EventStatus.isHappening || event.getStatus() == EventStatus.isFinished) {
+    if (event.getStatus() != EventStatus.isComing) {
       throw new LogicalException(
         ErrorCode.EVENT_MEMBER_CAN_NOT_JOIN_EVENT,
         'Can not join happening or finished event.',

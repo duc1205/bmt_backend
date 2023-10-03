@@ -58,7 +58,7 @@ export class CreateEventUsecase {
       description,
       group?.id,
       organizer.id,
-      1,
+      0,
       maxCount,
       startTime,
       finishTime,
