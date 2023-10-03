@@ -94,13 +94,24 @@ export class EventDatasource {
     });
 
     if (user) {
-      query.andWhere(
-        'EventEntity.scope = :scope OR EXISTS(SELECT EventEntity.id from group_members WHERE EventEntity.group_id = group_members.group_id AND group_members.member_id = :member_id LIMIT 1)',
-        {
-          scope: scope ?? EventScope.Public,
-          member_id: user.id,
-        },
-      );
+      if (!scope) {
+        query.andWhere(
+          '(EventEntity.scope = :scope OR EXISTS(SELECT EventEntity.id from group_members WHERE EventEntity.group_id = group_members.group_id AND group_members.member_id = :member_id LIMIT 1))',
+          {
+            scope: EventScope.Public,
+            member_id: user.id,
+          },
+        );
+      }
+
+      if (scope == EventScope.Group) {
+        query.andWhere(
+          'EXISTS(SELECT EventEntity.id from group_members WHERE EventEntity.group_id = group_members.group_id AND group_members.member_id = :member_id LIMIT 1)',
+          {
+            member_id: user.id,
+          },
+        );
+      }
     }
 
     let events: Array<EventEntity> = [];
