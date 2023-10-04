@@ -214,9 +214,7 @@ export class EventController {
     res.json(normalizeResponseData(await this.createEventMemberUsecase.call(event, user)));
   }
 
-  /**
-   * Leave event
-   */
+  /*   /
   @ApiResponse({ type: 'boolean' })
   @Delete('/id/:id/leave')
   async leaveEvent(@Req() req: any, @Param() params: EventParamsDto, @Res() res: Response) {
@@ -232,7 +230,8 @@ export class EventController {
     }
 
     res.json(normalizeResponseData(await this.deleteEventMemberUsecase.call(event, user)));
-  }
+  } 
+  */
 
   /**
    * Get list of event member
