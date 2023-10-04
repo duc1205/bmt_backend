@@ -25,6 +25,7 @@ import { DeleteAllEventsInGroupUsecase } from './domain/usecases/event/delete-al
 import { GetEventMembersUsecase } from './domain/usecases/event-member/get-event-members-usecase';
 import { DeleteEventUsecase } from './domain/usecases/event/delete-event-usecase';
 import { DeleteEventMembersByEventUsecase } from './domain/usecases/event-member/delete-event-members-by-event-usecase';
+import { CheckUserJoinEventsUsecase } from './domain/usecases/event-member/check-user-join-events-usecase';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { DeleteEventMembersByEventUsecase } from './domain/usecases/event-member
     GetEventMembersUsecase,
     DeleteEventUsecase,
     DeleteEventMembersByEventUsecase,
+    CheckUserJoinEventsUsecase,
   ],
   exports: [GetEventsUsecase, DeleteEventMembersInGroupUsecase, DeleteAllEventsInGroupUsecase],
 })

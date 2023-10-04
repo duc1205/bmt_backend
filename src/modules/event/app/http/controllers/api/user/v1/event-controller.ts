@@ -20,6 +20,7 @@ import { GetEventsUsecase } from 'src/modules/event/domain/usecases/event/get-ev
 import { CheckMemberCanJoinEventUsecase } from 'src/modules/event/domain/usecases/event-member/check-member-can-join-event-usecase';
 import { CreateEventMemberUsecase } from 'src/modules/event/domain/usecases/event-member/create-event-member-usecase';
 import {
+  CheckUserJoinedEventsDto,
   CreateEventDto,
   EventParamsDto,
   GetEventListQueryDto,
@@ -29,6 +30,8 @@ import {
 import { DeleteEventMemberUsecase } from 'src/modules/event/domain/usecases/event-member/delete-event-member-usecase';
 import { GetEventMembersUsecase } from 'src/modules/event/domain/usecases/event-member/get-event-members-usecase';
 import { DeleteEventUsecase } from 'src/modules/event/domain/usecases/event/delete-event-usecase';
+import { CheckUserJoinEventsUsecase } from 'src/modules/event/domain/usecases/event-member/check-user-join-events-usecase';
+import { EventMemberModel } from 'src/modules/event/domain/model/event-member-model';
 
 @ApiTags('User \\ Event')
 @ApiBearerAuth()
@@ -48,6 +51,7 @@ export class EventController {
     private readonly deleteEventMemberUsecase: DeleteEventMemberUsecase,
     private readonly getEventMembersUsecase: GetEventMembersUsecase,
     private readonly deleteEventUsecase: DeleteEventUsecase,
+    private readonly checkUserJoinEventsUsecase: CheckUserJoinEventsUsecase,
   ) {}
 
   /**
@@ -173,6 +177,7 @@ export class EventController {
   /**
    * Check user can join event
    */
+  @ApiResponse({ type: 'boolean' })
   @Post('/id/:id/check/join')
   async checkUserAvailableJoin(@Req() req: any, @Param() params: EventParamsDto, @Res() res: Response) {
     const authPayload: AuthPayloadModel = req.user;
@@ -192,6 +197,7 @@ export class EventController {
   /**
    * Join event
    */
+  @ApiResponse({ type: EventMemberModel })
   @Post('/id/:id/join')
   async joinEvent(@Req() req: any, @Param() params: EventParamsDto, @Res() res: Response) {
     const authPayload: AuthPayloadModel = req.user;
@@ -211,6 +217,7 @@ export class EventController {
   /**
    * Leave event
    */
+  @ApiResponse({ type: 'boolean' })
   @Delete('/id/:id/leave')
   async leaveEvent(@Req() req: any, @Param() params: EventParamsDto, @Res() res: Response) {
     const authPayload: AuthPayloadModel = req.user;
@@ -230,6 +237,7 @@ export class EventController {
   /**
    * Get list of event member
    */
+  @ApiResponse({ type: [EventMemberModel] })
   @Get('/member')
   async listEventMember(@Req() req: any, @Query() query: GetEventMemberListQueryDto, @Res() res: Response) {
     const authPayload: AuthPayloadModel = req.user;
@@ -259,6 +267,7 @@ export class EventController {
   /**
    * Delete event
    */
+  @ApiResponse({ type: 'boolean' })
   @Delete('/id/:id/delete')
   async deleteEvent(@Req() req: any, @Param() params: EventParamsDto, @Res() res: Response) {
     const authPayload: AuthPayloadModel = req.user;
@@ -274,5 +283,20 @@ export class EventController {
 
     await this.deleteEventUsecase.call(event, user);
     res.json(normalizeResponseData(true));
+  }
+
+  /**
+   * Check user joined list events
+   */
+  @ApiResponse({ schema: { example: { string: true } } })
+  @Post('/join/check')
+  async checkJoinedEvent(@Req() req: any, @Body() body: CheckUserJoinedEventsDto, @Res() res: Response) {
+    const authPayload: AuthPayloadModel = req.user;
+    const user = await this.getUserUsecase.call({ id: authPayload.authenticatableId });
+    if (!user) {
+      throw new LogicalException(ErrorCode.USER_NOT_FOUND, 'User not found', undefined);
+    }
+
+    res.json(normalizeResponseData(await this.checkUserJoinEventsUsecase.call(user, body.event_ids)));
   }
 }

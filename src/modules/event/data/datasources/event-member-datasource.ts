@@ -167,4 +167,26 @@ export class EventMemberDatasource {
   async deleteAllByEvent(event: EventModel): Promise<void> {
     await this.eventMemberRepository.delete({ event_id: event.id });
   }
+
+  async checkUserJoinEvents(user: UserModel, eventIds: string[]): Promise<Record<string, boolean>> {
+    const foundedIds = [
+      ...new Set(
+        (
+          await this.eventMemberRepository.find({
+            where: { event_id: In(eventIds), member_id: user.id },
+            select: ['event_id'],
+          })
+        ).map(function (entity) {
+          return entity.event_id;
+        }),
+      ),
+    ];
+
+    const result: Record<string, boolean> = {};
+    eventIds.forEach(function (eventId) {
+      result[eventId] = foundedIds.includes(eventId);
+    });
+
+    return result;
+  }
 }

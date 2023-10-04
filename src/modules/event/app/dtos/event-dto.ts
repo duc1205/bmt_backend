@@ -1,4 +1,14 @@
-import { IsDate, IsEnum, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, ValidateIf } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, IntersectionType, PartialType, PickType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { PaginationParamsDto } from 'src/core/dtos/pagination-params-dto';
@@ -75,4 +85,11 @@ export class GetEventMemberListQueryDto extends PartialType(IntersectionType(Pag
   @ApiProperty()
   @IsString()
   event_id!: string;
+}
+
+export class CheckUserJoinedEventsDto {
+  @ApiProperty()
+  @IsArray()
+  @IsString({ each: true })
+  event_ids!: string[];
 }

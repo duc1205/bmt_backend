@@ -59,4 +59,8 @@ export class EventMemberRepositoryImpl extends EventMemberRepository {
   async deleteAllByEvent(event: EventModel): Promise<void> {
     await this.eventMemberDatasource.deleteAllByEvent(event);
   }
+
+  async checkUserJoinEvents(user: UserModel, eventIds: string[]): Promise<Record<string, boolean>> {
+    return await this.eventMemberDatasource.checkUserJoinEvents(user, eventIds);
+  }
 }

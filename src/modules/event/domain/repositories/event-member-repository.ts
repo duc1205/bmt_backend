@@ -36,4 +36,6 @@ export abstract class EventMemberRepository {
   ): Promise<PageList<EventMemberModel>>;
 
   abstract deleteAllByEvent(event: EventModel): Promise<void>;
+
+  abstract checkUserJoinEvents(user: UserModel, eventIds: string[]): Promise<Record<string, boolean>>;
 }
